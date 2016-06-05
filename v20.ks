@@ -1,23 +1,38 @@
+FUNCTION TILT {
+  PARAMETER minimum_altitude.
+  PARAMETER angle.
+
+  WAIT UNTIL ALTITUDE > minimum_altitude.
+  PRINT "Locking heading to " + angle + " degrees".
+  LOCK STEERING TO HEADING(0, angle).
+}
+
 CLEARSCREEN.
 
-LOCK THROTTLE TO 1.0.
-LOCK STEERING TO UP.
+PRINT "Launch program initiated".
+TILT(0, 80). LOCK THROTTLE TO 1.
 
 PRINT "Counting down:".
 FROM {local countdown is 10.} UNTIL countdown = 0 STEP {SET countdown to countdown - 1.} DO {
-    PRINT "..." + countdown.
-    WAIT 1.
+  PRINT "..." + countdown.
+  WAIT 1.
 }
-STAGE.
+PRINT "LAUNCH!". STAGE.
+
+WAIT UNTIL VERTICALSPEED > 300. LOCK THROTTLE TO 0.35.
+
+WAIT UNTIL APOAPSIS > 70000.
+PRINT "Coasting to space".
+TILT(0, 10). LOCK THROTTLE TO 0.1.
 
 WAIT UNTIL SHIP:ALTITUDE > 70000.
-STAGE.
-UNLOCK STEERING.
+TILT(0, 0). LOCK THROTTLE TO 1.
+
+WAIT UNTIL STAGE:LIQUIDFUEL < 1.
+STAGE. UNLOCK STEERING.
 
 WAIT UNTIL ALT:RADAR < 5000.
-STAGE.
-WAIT 1.
-STAGE.
+PRINT "Deploying parachutes".
+STAGE. WAIT 1. STAGE.
 WAIT UNTIL VERTICALSPEED >= 0.
-CLEARSCREEN.
 PRINT "Landed! (Or Splashed!) Program terminated, thanks for flying!".
